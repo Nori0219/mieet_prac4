@@ -42,6 +42,8 @@ class _AddEditMemoPageState extends State<AddEditMemoPage> {
     }
   //init state
   //編集押したときに既存の情報を表示させる
+
+  
   @override
     void initState() {
       super.initState();

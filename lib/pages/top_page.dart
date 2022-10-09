@@ -32,11 +32,19 @@ class _TopPageState extends State<TopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        
-        title: const Text('flutter ~ firebase'),
+        title: const Text('メモ'),
+        centerTitle: true,
+        actions: [
+            IconButton(icon: Icon(Icons.search), onPressed: () {
+
+            }),
+            IconButton(icon: Icon(Icons.more_vert), onPressed: () {
+              
+            }),
+          ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: memoCollection.snapshots(),//memoCollectionが更新されたら検知して builderを実行
+        stream: memoCollection.orderBy('createdDate', descending: true).snapshots(),//memoCollectionが更新されたら検知して builderを実行
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting ) {
             return const CircularProgressIndicator();
@@ -57,44 +65,48 @@ class _TopPageState extends State<TopPage> {
                 createdDate: data['createdDate'],
                 updatedDate: data['updatedDate'],
               );
-              return ListTile(
-                title: Text(fetchMemo.title),
-                trailing: IconButton(//編集ボタンの追加
-                  onPressed: (){
-                    //下から出てくる
-                    showModalBottomSheet(context: context, builder: (context){
-                      return SafeArea(//iPhone の画面下にスペースをつくる・誤タップ防止
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,//出てくる領域の高さを設定
-                          children: [
-                            ListTile(
-                              onTap: () {
-                                Navigator.pop(context);//ボトムシートを消す
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => AddEditMemoPage(currentMemo: fetchMemo ,)));
-                              },
-                              leading: const Icon(Icons.edit),
-                              title: const Text('編集'),
-                            ),
-                            ListTile(
-                              onTap: () async{
-                                await deleteMemo(fetchMemo.id);
-                                Navigator.pop(context);
-                              },
-                              leading: const Icon(Icons.delete),
-                              title: const Text('削除'),
-                            ),
-                          ],
-                        ),
-                      );
-                    });
-                  } ,
-                  icon: const Icon(Icons.edit ),
-                  ),
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => MemoDetailPage(fetchMemo)));//画面遷移
-                },
+              return Card(
+                child: ListTile(
+                  leading: Icon(Icons.book),
+                  title: Text(fetchMemo.title), 
+                  subtitle:  Text(''),
+                  trailing:IconButton(//編集ボタンの追加
+                    onPressed: (){
+                      //下から出てくる
+                      showModalBottomSheet(context: context, builder: (context){
+                        return SafeArea(//iPhone の画面下にスペースをつくる・誤タップ防止
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,//出てくる領域の高さを設定
+                            children: [
+                              ListTile(
+                                onTap: () {
+                                  Navigator.pop(context);//ボトムシートを消す
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => AddEditMemoPage(currentMemo: fetchMemo ,)));
+                                },
+                                leading: const Icon(Icons.edit),
+                                title: const Text('編集'),
+                              ),
+                              ListTile(
+                                onTap: () async{
+                                  await deleteMemo(fetchMemo.id);
+                                  Navigator.pop(context);
+                                },
+                                leading: const Icon(Icons.delete),
+                                title: const Text('削除'),
+                              ),
+                            ],
+                          ),
+                        );
+                      });
+                    } ,
+                    icon: const Icon(Icons.edit ),
+                    ),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => MemoDetailPage(fetchMemo)));//画面遷移
+                  },
+                ),
               );
             }
             
