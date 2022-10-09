@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -18,6 +20,11 @@ class TopPage extends StatefulWidget {
 class _TopPageState extends State<TopPage> {
   final memoCollection = FirebaseFirestore.instance.collection('memo');
 
+  //メモを削除
+  Future deleteMemo( String id) async{
+    final doc =FirebaseFirestore.instance.collection('memo').doc(id);
+    await doc.delete();
+  }
 
   
 
@@ -44,6 +51,7 @@ class _TopPageState extends State<TopPage> {
             itemBuilder: (context, index) {
               Map<String, dynamic> data = docs[index].data() as Map<String, dynamic>;
               final Memo fetchMemo = Memo(
+                id: docs[index].id,
                 title: data['title'],
                 detail: data['detail'],
                 createdDate: data['createdDate'],
@@ -61,14 +69,17 @@ class _TopPageState extends State<TopPage> {
                           children: [
                             ListTile(
                               onTap: () {
-                                
+                                Navigator.pop(context);//ボトムシートを消す
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => AddEditMemoPage(currentMemo: fetchMemo ,)));
                               },
                               leading: const Icon(Icons.edit),
                               title: const Text('編集'),
                             ),
                             ListTile(
-                              onTap: () {
-                                
+                              onTap: () async{
+                                await deleteMemo(fetchMemo.id);
+                                Navigator.pop(context);
                               },
                               leading: const Icon(Icons.delete),
                               title: const Text('削除'),
